@@ -1,0 +1,55 @@
+import type { ExpressionExercise, GradeResult } from './exerciseTypes'
+import { expressionComplexity, isEquivalent, parseExpression } from './mathEngine'
+
+const targetTolerance = 2
+
+export function gradeAnswer(exercise: ExpressionExercise, answer: string): GradeResult {
+  if (answer.trim().length === 0) {
+    return { isCorrect: false, reason: 'empty' }
+  }
+
+  if (!canParse(answer)) {
+    return { isCorrect: false, reason: 'parseError' }
+  }
+
+  if (!isEquivalent(exercise.source, answer)) {
+    return { isCorrect: false, reason: 'notEquivalent' }
+  }
+
+  if (isCopiedOrUnchanged(exercise, answer)) {
+    return { isCorrect: false, reason: 'copied' }
+  }
+
+  if (!isSimpleEnough(exercise, answer)) {
+    return { isCorrect: false, reason: 'tooComplex' }
+  }
+
+  return { isCorrect: true, reason: 'correct' }
+}
+
+function canParse(expression: string): boolean {
+  try {
+    parseExpression(expression)
+    return true
+  } catch {
+    return false
+  }
+}
+
+function isCopiedOrUnchanged(exercise: ExpressionExercise, answer: string): boolean {
+  try {
+    const source = parseExpression(exercise.source).toString()
+    const response = parseExpression(answer).toString()
+    return source === response
+  } catch {
+    return false
+  }
+}
+
+function isSimpleEnough(exercise: ExpressionExercise, answer: string): boolean {
+  const sourceScore = expressionComplexity(exercise.source)
+  const answerScore = expressionComplexity(answer)
+  const targetScore = expressionComplexity(exercise.target)
+
+  return answerScore < sourceScore && answerScore <= targetScore + targetTolerance
+}
