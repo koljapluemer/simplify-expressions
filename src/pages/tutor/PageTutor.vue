@@ -6,6 +6,7 @@ import MathInput from '@/dumb/MathInput.vue'
 import RenderedMath from '@/dumb/RenderedMath.vue'
 import { generateExercise } from '@/entities/expression-exercise/exerciseGenerator'
 import { gradeAnswer } from '@/entities/expression-exercise/exerciseGrader'
+import { normalizeExpression } from '@/entities/expression-exercise/mathEngine'
 import type { GradeResult } from '@/entities/expression-exercise/exerciseTypes'
 
 const { t } = useI18n()
@@ -31,6 +32,17 @@ const feedbackIcon = computed(() => {
 })
 
 function checkAnswer() {
+  if (import.meta.env.DEV) {
+    console.log('grading expression answer', {
+      rawAnswer: answer.value,
+      normalizedAnswer: normalizeExpression(answer.value),
+      source: exercise.value.source,
+      normalizedSource: normalizeExpression(exercise.value.source),
+      target: exercise.value.target,
+      normalizedTarget: normalizeExpression(exercise.value.target)
+    })
+  }
+
   result.value = gradeAnswer(exercise.value, answer.value)
 }
 

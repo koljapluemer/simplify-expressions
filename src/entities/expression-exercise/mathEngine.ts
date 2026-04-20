@@ -14,10 +14,28 @@ export function toLatex(expression: string): string {
 }
 
 export function normalizeExpression(expression: string): string {
-  return expression
+  const normalizedSymbols = expression
     .replace(/−/g, '-')
-    .replace(/·/g, '*')
+    .replace(/[·⋅]/g, '*')
     .trim()
+
+  return expandCompactProducts(markSpacedProducts(normalizedSymbols))
+}
+
+function markSpacedProducts(expression: string): string {
+  return expression.replace(/([0-9A-Za-z)])\s+(?=[0-9A-Za-z(])/g, '$1*')
+}
+
+function expandCompactProducts(expression: string): string {
+  return expression
+    .replace(/(\d)([a-zA-Z])/g, '$1*$2')
+    .replace(/([a-zA-Z])(\d)/g, '$1*$2')
+    .replace(/([a-zA-Z])([a-zA-Z])/g, '$1*$2')
+    .replace(/([a-zA-Z])\(/g, '$1*(')
+    .replace(/\)([a-zA-Z])/g, ')*$1')
+    .replace(/(\d)\(/g, '$1*(')
+    .replace(/\)(\d)/g, ')*$1')
+    .replace(/\)\(/g, ')*(')
 }
 
 export function isEquivalent(left: string, right: string): boolean {
