@@ -180,21 +180,36 @@ function createExerciseAttempt(input: {
   latencyMs: number
 }): ExerciseAttempt {
   const timestamp = new Date().toISOString()
+  const exercise = serializeExercise(input.exercise)
 
   return {
-    id: `${input.exercise.id}:${timestamp}`,
+    id: `${exercise.id}:${timestamp}`,
     timestamp,
-    exerciseId: input.exercise.id,
-    topic: input.exercise.topic,
-    difficultyBand: input.exercise.difficultyBand,
-    difficultyScore: input.exercise.difficultyScore,
-    features: input.exercise.features,
-    source: input.exercise.source,
-    target: input.exercise.target,
+    exerciseId: exercise.id,
+    topic: exercise.topic,
+    difficultyBand: exercise.difficultyBand,
+    difficultyScore: exercise.difficultyScore,
+    features: [...exercise.features],
+    source: exercise.source,
+    target: exercise.target,
     answer: input.answer,
     resultReason: input.resultReason,
     isCorrect: input.isCorrect,
     latencyMs: input.latencyMs
+  }
+}
+
+function serializeExercise(exercise: ExpressionExercise): ExpressionExercise {
+  return {
+    id: exercise.id,
+    topic: exercise.topic,
+    source: exercise.source,
+    target: exercise.target,
+    difficultyBand: exercise.difficultyBand,
+    difficultyScore: exercise.difficultyScore,
+    features: [...exercise.features],
+    seed: exercise.seed,
+    trace: exercise.trace ? [...exercise.trace] : undefined
   }
 }
 
