@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { expressionComplexity, isEquivalent, normalizeExpression, parseExpression } from './mathEngine'
+import {
+  expressionComplexity,
+  isEquivalent,
+  normalizeExpression,
+  parseExpression,
+  toLatex
+} from './mathEngine'
 
 describe('normalizeExpression', () => {
   it.each([
@@ -54,5 +60,11 @@ describe('expressionComplexity', () => {
 
   it('treats compact and explicit products as equal', () => {
     expect(expressionComplexity('25+15ab')).toBeLessThan(expressionComplexity('5*(5+3*a*b)'))
+  })
+})
+
+describe('toLatex', () => {
+  it('should keep source and solution visually distinct when the only difference is redundant parentheses', () => {
+    expect(toLatex('4*z + (5*n + a)')).not.toBe(toLatex('4*z + 5*n + a'))
   })
 })
