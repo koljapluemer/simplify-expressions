@@ -4,7 +4,7 @@ import type { MathfieldElement } from 'mathlive'
 import { useI18n } from 'vue-i18n'
 
 type ToolbarAction = {
-  id: 'square' | 'power' | 'leftParen' | 'rightParen' | 'minus'
+  id: 'square' | 'power' | 'leftParen' | 'rightParen' | 'plus' | 'minus' | 'multiply' | 'divide'
   label: string
   insertLatex: string
   selectionMode?: 'placeholder' | 'after'
@@ -49,9 +49,27 @@ const toolbarActions = computed<ToolbarAction[]>(() => [
     selectionMode: 'after'
   },
   {
+    id: 'plus',
+    label: t('tutor.mathInputToolbar.plusSymbol'),
+    insertLatex: '+',
+    selectionMode: 'after'
+  },
+  {
     id: 'minus',
     label: t('tutor.mathInputToolbar.minusSymbol'),
     insertLatex: '-',
+    selectionMode: 'after'
+  },
+  {
+    id: 'multiply',
+    label: t('tutor.mathInputToolbar.multiplySymbol'),
+    insertLatex: '\\cdot',
+    selectionMode: 'after'
+  },
+  {
+    id: 'divide',
+    label: t('tutor.mathInputToolbar.divideSymbol'),
+    insertLatex: '/',
     selectionMode: 'after'
   }
 ])
@@ -124,13 +142,6 @@ function escapeLatexText(value: string): string {
 
 <template>
   <div class="flex flex-col gap-2">
-    <math-field
-      ref="mathField"
-      class="min-h-14 w-full rounded-box border border-base-300 bg-base-100 px-3 py-2 text-xl focus-within:outline focus-within:outline-2 focus-within:outline-primary aria-disabled:cursor-not-allowed aria-disabled:bg-base-200 aria-disabled:text-base-content/70"
-      :aria-label="label"
-      :aria-disabled="disabled"
-      :placeholder="mathPlaceholder"
-    />
     <div
       class="flex flex-wrap gap-2"
       :aria-label="t('tutor.mathInputToolbar.label')"
@@ -150,6 +161,13 @@ function escapeLatexText(value: string): string {
         {{ action.label }}
       </button>
     </div>
+    <math-field
+      ref="mathField"
+      class="min-h-14 w-full rounded-box border border-base-300 bg-base-100 px-3 py-2 text-xl focus-within:outline focus-within:outline-2 focus-within:outline-primary aria-disabled:cursor-not-allowed aria-disabled:bg-base-200 aria-disabled:text-base-content/70"
+      :aria-label="label"
+      :aria-disabled="disabled"
+      :placeholder="mathPlaceholder"
+    />
   </div>
 </template>
 

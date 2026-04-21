@@ -24,8 +24,14 @@ const messages = {
         leftParenSymbol: '(',
         rightParen: 'Schließende Klammer einfügen',
         rightParenSymbol: ')',
+        plus: 'Plus einfügen',
+        plusSymbol: '+',
         minus: 'Minus einfügen',
-        minusSymbol: '−'
+        minusSymbol: '−',
+        multiply: 'Mal einfügen',
+        multiplySymbol: '·',
+        divide: 'Geteilt einfügen',
+        divideSymbol: '÷'
       },
       check: 'Prüfen',
       giveUp: 'Aufgeben & Lösung zeigen',
@@ -82,8 +88,14 @@ const messages = {
         leftParenSymbol: '(',
         rightParen: 'Insert closing parenthesis',
         rightParenSymbol: ')',
+        plus: 'Insert plus',
+        plusSymbol: '+',
         minus: 'Insert minus',
-        minusSymbol: '−'
+        minusSymbol: '−',
+        multiply: 'Insert multiplication',
+        multiplySymbol: '·',
+        divide: 'Insert division',
+        divideSymbol: '÷'
       },
       check: 'Check',
       giveUp: 'Give up & Show Solution',
