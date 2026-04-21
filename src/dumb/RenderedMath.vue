@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue'
 import katex from 'katex'
-import { toLatex } from '@/entities/expression-exercise/mathEngine'
+import { toDisplayLatex } from '@/entities/expression-exercise/exerciseDisplay'
 
 const props = defineProps<{
   expression: string
@@ -20,7 +20,7 @@ function renderMath() {
   if (!mathContainer.value) return
 
   try {
-    katex.render(toLatex(props.expression), mathContainer.value, {
+    katex.render(toDisplayLatex(props.expression), mathContainer.value, {
       displayMode: true,
       throwOnError: false
     })

@@ -1,5 +1,5 @@
 import { shuffleArray } from '@/dumb/random'
-import { expressionComplexity, isEquivalent, parseExpression } from './mathEngine'
+import { isValidExercise } from './exerciseValidation'
 import type {
   DifficultyBand,
   ExerciseFeature,
@@ -43,7 +43,6 @@ export function generateExercise(
       id: `${topic}:${difficultyBand}:${seed}`,
       seed
     }
-
     if (!isValidExercise(exercise)) continue
 
     return exercise
@@ -152,9 +151,8 @@ function generateRemoveParenthesesExercise(
       variables[2] ?? 'z'
     ])
   ]
-  const sign = difficultyBand >= 2 ? '-' : '+'
-  const features: ExerciseFeature[] =
-    sign === '-' ? ['outer-minus', 'sign-flip'] : ['split-coefficient']
+  const sign = '-'
+  const features: ExerciseFeature[] = ['outer-minus', 'sign-flip']
 
   if (difficultyBand >= 4) {
     innerTerms.push(renderMonomial(randomInt(randomSource, 1, 4), [variables[0] ?? 'x']))
@@ -315,9 +313,13 @@ function generateSignedProductExercise(
   const productSource = `${renderMonomial(factorOne, baseFactors)} * ${renderMonomial(factorTwo, [variables[1] ?? 'b'])}`
   const productTarget = multiplyRenderedTerms(factorOne, baseFactors, factorTwo, [variables[1] ?? 'b'])
   const productTerm = parseRenderedTerm(productTarget)
-  const combineTerm = renderMonomial(randomInt(randomSource, 1, 4 + difficultyBand), compressFactors(productTerm.factors))
-  const sourceTerms = [productSource, difficultyBand >= 3 ? flipTermSign(combineTerm) : combineTerm]
-  const targetTerms = [productTarget, sourceTerms[1] ?? combineTerm]
+  const combineCoefficient = randomInt(randomSource, 1, Math.max(1, Math.abs(productTerm.coefficient) - 1))
+  const combineTerm = renderMonomial(combineCoefficient, compressFactors(productTerm.factors))
+  const sourceSecondTerm = difficultyBand >= 3 ? flipTermSign(combineTerm) : combineTerm
+  const sourceTerms = [productSource, sourceSecondTerm]
+  const combinedCoefficient =
+    productTerm.coefficient + parseRenderedTerm(sourceSecondTerm).coefficient
+  const targetTerms = [renderMonomial(combinedCoefficient, compressFactors(productTerm.factors))]
 
   return {
     topic: 'signed-product-with-follow-up-combine',
@@ -333,13 +335,13 @@ function generateChallengeExercise(
   difficultyBand: DifficultyBand,
   randomSource: RandomSource
 ): ExerciseDraft {
-  const variables = pickDistinct(randomSource, baseVariables, 3)
+  const variables = pickDistinct(randomSource, baseVariables, 4)
   const factor = renderMonomial(randomInt(randomSource, 2, 5), [variables[0] ?? 'a'])
   const inner = [
     renderMonomial(1, [variables[1] ?? 'b']),
     renderMonomial(randomInt(randomSource, 2, 4), [variables[2] ?? 'c'])
   ]
-  const tail = renderMonomial(randomInt(randomSource, 2, 5), [variables[0] ?? 'a', variables[1] ?? 'b'])
+  const tail = renderMonomial(randomInt(randomSource, 2, 5), [variables[0] ?? 'a', variables[3] ?? 'd'])
   const distributed = inner.map((term) => {
     const parsed = parseRenderedTerm(term)
     return multiplyRenderedTerms(parseRenderedTerm(factor).coefficient, parseRenderedTerm(factor).factors, parsed.coefficient, parsed.factors)
@@ -398,22 +400,6 @@ function scoreDifficulty(draft: ExerciseDraft): number {
 
   return structuralScore + featureScore + arithmeticScore + draft.difficultyBand * 4
 }
-
-function isValidExercise(exercise: ExpressionExercise): boolean {
-  try {
-    parseExpression(exercise.source)
-    parseExpression(exercise.target)
-  } catch {
-    return false
-  }
-
-  if (!isEquivalent(exercise.source, exercise.target)) {
-    return false
-  }
-
-  return expressionComplexity(exercise.target) !== expressionComplexity(exercise.source) || exercise.source !== exercise.target
-}
-
 function createSeed(topic: ExerciseTopic, difficultyBand: DifficultyBand, randomSource: RandomSource) {
   return `${topic}-${difficultyBand}-${Math.floor(randomSource.next() * 1_000_000)}`
 }

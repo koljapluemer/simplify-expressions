@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { generateExercise } from './exerciseGenerator'
 import { gradeAnswer } from './exerciseGrader'
-import { toLatex } from './mathEngine'
+import { toDisplayLatex } from './exerciseDisplay'
 import type { ExpressionExercise } from './exerciseTypes'
 
 const visuallyCollapsedExercise: ExpressionExercise = {
@@ -22,21 +22,23 @@ function createDeterministicRandomSource(value: number) {
 }
 
 describe('exercise regressions', () => {
-  it('should reject exercises whose source and target render identically', () => {
-    expect(toLatex(visuallyCollapsedExercise.source)).not.toBe(toLatex(visuallyCollapsedExercise.target))
+  it('keeps source and target visually distinct in the dedicated display renderer', () => {
+    expect(toDisplayLatex(visuallyCollapsedExercise.source)).not.toBe(
+      toDisplayLatex(visuallyCollapsedExercise.target)
+    )
   })
 
-  it('should not generate a remove-parentheses exercise that already renders as the solved form', () => {
+  it('does not generate a remove-parentheses exercise that already renders as the solved form', () => {
     const exercise = generateExercise(
       'remove-parentheses-with-sign',
       1,
       createDeterministicRandomSource(0)
     )
 
-    expect(toLatex(exercise.source)).not.toBe(toLatex(exercise.target))
+    expect(toDisplayLatex(exercise.source)).not.toBe(toDisplayLatex(exercise.target))
   })
 
-  it('should not end in a copied verdict when the student only sees the target form in the UI', () => {
+  it('accepts a solved equivalent answer if a bad exercise slips through', () => {
     expect(gradeAnswer(visuallyCollapsedExercise, 'a+5n+4z')).toEqual({
       isCorrect: true,
       reason: 'correct'

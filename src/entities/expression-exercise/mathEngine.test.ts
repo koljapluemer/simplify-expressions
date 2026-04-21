@@ -6,6 +6,7 @@ import {
   parseExpression,
   toLatex
 } from './mathEngine'
+import { toDisplayLatex } from './exerciseDisplay'
 
 describe('normalizeExpression', () => {
   it.each([
@@ -64,7 +65,13 @@ describe('expressionComplexity', () => {
 })
 
 describe('toLatex', () => {
-  it('should keep source and solution visually distinct when the only difference is redundant parentheses', () => {
-    expect(toLatex('4*z + (5*n + a)')).not.toBe(toLatex('4*z + 5*n + a'))
+  it('canonicalizes equivalent expressions to the same semantic latex', () => {
+    expect(toLatex('4*z + (5*n + a)')).toBe(toLatex('4*z + 5*n + a'))
+  })
+})
+
+describe('toDisplayLatex', () => {
+  it('keeps source and solution visually distinct when the only difference is redundant parentheses', () => {
+    expect(toDisplayLatex('4*z + (5*n + a)')).not.toBe(toDisplayLatex('4*z + 5*n + a'))
   })
 })

@@ -1,5 +1,6 @@
 import type { ExpressionExercise, GradeResult } from './exerciseTypes'
 import { expressionComplexity, isEquivalent, parseExpression } from './mathEngine'
+import { isSolvedForTopic } from './exerciseSimplification'
 
 const targetTolerance = 2
 
@@ -14,6 +15,10 @@ export function gradeAnswer(exercise: ExpressionExercise, answer: string): Grade
 
   if (!isEquivalent(exercise.source, answer)) {
     return { isCorrect: false, reason: 'notEquivalent' }
+  }
+
+  if (isSolvedForTopic(exercise.topic, answer) && isSimpleEnough(exercise, answer)) {
+    return { isCorrect: true, reason: 'correct' }
   }
 
   if (isCopiedOrUnchanged(exercise, answer)) {
