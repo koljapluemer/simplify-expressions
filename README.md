@@ -9,9 +9,12 @@ The app generates short algebra exercises, accepts math input through MathLive, 
 ```bash
 npm install
 npm run dev
+npm test
 npm run lint:fix
 npm run build
 ```
+
+`npm test` runs the Vitest unit tests, including parsing and implicit-multiplication cases in `src/entities/expression-exercise/mathEngine.test.ts`.
 
 ## I18n Linting
 
