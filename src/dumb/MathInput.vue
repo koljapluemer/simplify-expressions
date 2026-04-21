@@ -11,6 +11,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:modelValue': [value: string]
+  submit: []
 }>()
 
 const mathField = ref<MathfieldElement | null>(null)
@@ -23,6 +24,7 @@ onMounted(() => {
   mathField.value.smartFence = true
   mathField.value.readOnly = props.disabled ?? false
   mathField.value.addEventListener('input', handleInput)
+  mathField.value.addEventListener('keydown', handleKeydown)
 })
 
 watch(
@@ -45,6 +47,15 @@ watch(
 
 function handleInput() {
   emit('update:modelValue', mathField.value?.getValue('ascii-math') ?? '')
+}
+
+function handleKeydown(event: KeyboardEvent) {
+  if (event.key !== 'Enter' || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) {
+    return
+  }
+
+  event.preventDefault()
+  emit('submit')
 }
 
 function escapeLatexText(value: string): string {

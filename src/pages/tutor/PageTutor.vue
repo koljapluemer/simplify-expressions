@@ -207,6 +207,7 @@ async function revealSolution() {
         :disabled="isResolved || tutorState.mode === 'loading'"
         :label="t('tutor.answerLabel')"
         :placeholder="t('tutor.answerPlaceholder')"
+        @submit="actionConfig.handler"
       />
       <button
         class="btn btn-primary"
