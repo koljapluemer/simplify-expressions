@@ -1,0 +1,4 @@
+- more templating or away from templating
+- include more exercises
+- build in difficulty and progression
+- maybe integrate explanations

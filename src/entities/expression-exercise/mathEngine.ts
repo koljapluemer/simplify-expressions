@@ -1,22 +1,37 @@
-import { all, create, type MathNode } from 'mathjs'
+import {
+  ComputeEngine,
+  isFunction,
+  isNumber,
+  isSymbol,
+  type BoxedExpression
+} from '@cortex-js/compute-engine'
 
-export const math = create(all ?? {})
+const computeEngine = new ComputeEngine()
 
-export function parseExpression(expression: string): MathNode {
-  return math.parse(normalizeExpression(expression))
+export function parseExpression(expression: string): BoxedExpression {
+  const normalizedExpression = normalizeExpression(expression)
+
+  if (normalizedExpression.length === 0) {
+    throw new Error('Expression is empty')
+  }
+
+  const parsedExpression = computeEngine.parse(normalizedExpression)
+
+  if (!parsedExpression.isValid || parsedExpression.errors.length > 0 || parsedExpression.is('Nothing')) {
+    throw new Error('Expression is invalid')
+  }
+
+  return parsedExpression
 }
 
 export function toLatex(expression: string): string {
-  return parseExpression(expression).toTex({
-    parenthesis: 'keep',
-    implicit: 'hide'
-  })
+  return parseExpression(expression).latex
 }
 
 export function normalizeExpression(expression: string): string {
   const normalizedSymbols = expression
     .replace(/−/g, '-')
-    .replace(/[·⋅]/g, '*')
+    .replace(/[·⋅×]/g, '*')
     .trim()
 
   return insertImplicitMultiplication(tokenizeExpression(normalizedSymbols))
@@ -25,9 +40,11 @@ export function normalizeExpression(expression: string): string {
 type Token =
   | { type: 'number'; value: string }
   | { type: 'symbol'; value: string }
-  | { type: 'operator'; value: string }
+  | { type: 'operator'; value: '+' | '-' | '*' | '/' | '^' }
   | { type: 'leftParen'; value: '(' }
   | { type: 'rightParen'; value: ')' }
+
+type TokenOperator = Token extends { type: 'operator'; value: infer Value } ? Value : never
 
 function tokenizeExpression(expression: string): Token[] {
   const tokens: Token[] = []
@@ -42,7 +59,7 @@ function tokenizeExpression(expression: string): Token[] {
       continue
     }
 
-    if (/[0-9.]/.test(char)) {
+    if (isNumberStart(expression, index)) {
       const end = findNumberEnd(expression, index)
       tokens.push({ type: 'number', value: expression.slice(index, end) })
       index = end
@@ -50,11 +67,8 @@ function tokenizeExpression(expression: string): Token[] {
     }
 
     if (/[a-zA-Z]/.test(char)) {
-      const end = findSymbolEnd(expression, index)
-      for (const symbol of expression.slice(index, end)) {
-        tokens.push({ type: 'symbol', value: symbol })
-      }
-      index = end
+      tokens.push({ type: 'symbol', value: char })
+      index += 1
       continue
     }
 
@@ -70,16 +84,36 @@ function tokenizeExpression(expression: string): Token[] {
       continue
     }
 
-    tokens.push({ type: 'operator', value: char })
-    index += 1
+    if (isOperator(char)) {
+      tokens.push({ type: 'operator', value: char })
+      index += 1
+      continue
+    }
+
+    throw new Error(`Unsupported token: ${char}`)
   }
 
   return tokens
 }
 
+function isNumberStart(expression: string, index: number): boolean {
+  const char = expression[index]
+  const nextChar = expression[index + 1]
+
+  if (!char) return false
+  if (/[0-9]/.test(char)) return true
+
+  return char === '.' && Boolean(nextChar && /[0-9]/.test(nextChar))
+}
+
 function findNumberEnd(expression: string, start: number): number {
   let index = start
   let hasDecimalPoint = false
+
+  if (expression[index] === '.') {
+    hasDecimalPoint = true
+    index += 1
+  }
 
   while (index < expression.length) {
     const char = expression[index]
@@ -100,16 +134,8 @@ function findNumberEnd(expression: string, start: number): number {
   return index
 }
 
-function findSymbolEnd(expression: string, start: number): number {
-  let index = start
-
-  while (index < expression.length) {
-    const char = expression[index]
-    if (!char || !/[a-zA-Z]/.test(char)) break
-    index += 1
-  }
-
-  return index
+function isOperator(char: string): char is TokenOperator {
+  return char === '+' || char === '-' || char === '*' || char === '/' || char === '^'
 }
 
 function insertImplicitMultiplication(tokens: Token[]): string {
@@ -142,43 +168,37 @@ function canStartFactor(token: Token): boolean {
 
 export function isEquivalent(left: string, right: string): boolean {
   try {
-    return math.symbolicEqual(parseExpression(left), parseExpression(right))
+    return parseExpression(left).isEqual(parseExpression(right)) === true
   } catch {
     return false
   }
 }
 
 export function expressionComplexity(expression: string): number {
-  const node = parseExpression(expression)
-  return scoreNode(node)
+  return scoreNode(parseExpression(expression))
 }
 
-function scoreNode(node: MathNode): number {
+function scoreNode(node: BoxedExpression): number {
   let score = baseScore(node)
 
-  node.forEach((child) => {
-    score += scoreNode(child)
-  })
+  if (isFunction(node)) {
+    for (const child of node.ops) {
+      score += scoreNode(child)
+    }
+  }
 
   return score
 }
 
-function baseScore(node: MathNode): number {
-  if (math.isOperatorNode(node)) {
-    return operatorScore(node.op)
-  }
+function baseScore(node: BoxedExpression): number {
+  const operator = node.operator
 
-  if (math.isSymbolNode(node)) return 1
-  if (math.isConstantNode(node)) return 1
+  if (operator === 'Add' || operator === 'Multiply') return 3
+  if (operator === 'Negate') return 4
+  if (operator === 'Divide') return 5
+  if (operator === 'Power' || operator === 'Square') return 4
+
+  if (isSymbol(node) || isNumber(node)) return 1
 
   return 2
-}
-
-function operatorScore(operator: string): number {
-  if (operator === '+' || operator === '*') return 3
-  if (operator === '-') return 4
-  if (operator === '/') return 5
-  if (operator === '^') return 4
-
-  return 4
 }

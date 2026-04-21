@@ -38,9 +38,7 @@ function canParse(expression: string): boolean {
 
 function isCopiedOrUnchanged(exercise: ExpressionExercise, answer: string): boolean {
   try {
-    const source = parseExpression(exercise.source).toString()
-    const response = parseExpression(answer).toString()
-    return source === response
+    return parseExpression(exercise.source).isSame(parseExpression(answer))
   } catch {
     return false
   }

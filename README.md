@@ -1,8 +1,8 @@
 ## Simplify Expressions
 
-High-school expression simplification tutor built with Vue 3, TypeScript, Vite, Tailwind CSS, DaisyUI, Vue Router, Vue I18n, MathLive, KaTeX, mathjs, lucide icons, and Dexie-ready project structure.
+High-school expression simplification tutor built with Vue 3, TypeScript, Vite, Tailwind CSS, DaisyUI, Vue Router, Vue I18n, MathLive, KaTeX, Cortex Compute Engine, lucide icons, and Dexie-ready project structure.
 
-The app generates short algebra exercises, accepts math input through MathLive, renders expressions with KaTeX, and grades answers with mathjs. A response must be mathematically equivalent and simpler than the original expression, not just a copy.
+The app generates short algebra exercises, accepts math input through MathLive, renders expressions with KaTeX, and grades answers with the Cortex Compute Engine. A response must be mathematically equivalent and simpler than the original expression, not just a copy.
 
 ## Development
 
