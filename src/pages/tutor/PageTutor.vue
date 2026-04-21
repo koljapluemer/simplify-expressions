@@ -13,22 +13,85 @@ const { t } = useI18n()
 
 const exercise = ref(generateExercise())
 const answer = ref('')
-const result = ref<GradeResult | null>(null)
-const isTargetVisible = ref(false)
+const resolution = ref<{ kind: 'revealed' } | { kind: 'graded'; result: GradeResult } | null>(null)
+
+type TutorState =
+  | { mode: 'editing'; hasInput: boolean }
+  | { mode: 'resolved'; resolution: NonNullable<typeof resolution.value> }
+
+const tutorState = computed<TutorState>(() => {
+  if (resolution.value) {
+    return { mode: 'resolved', resolution: resolution.value }
+  }
+
+  if (answer.value.trim().length > 0) {
+    return { mode: 'editing', hasInput: true }
+  }
+
+  return { mode: 'editing', hasInput: false }
+})
 
 const feedbackKey = computed(() => {
-  if (!result.value) return 'tutor.feedback.idle'
-  return `tutor.feedback.${result.value.reason}`
+  if (tutorState.value.mode === 'resolved') {
+    if (tutorState.value.resolution.kind === 'revealed') {
+      return 'tutor.feedback.revealed'
+    }
+
+    return `tutor.feedback.${tutorState.value.resolution.result.reason}`
+  }
+
+  return 'tutor.feedback.idle'
 })
 
 const feedbackClass = computed(() => {
-  if (!result.value) return 'alert-info'
-  return result.value.isCorrect ? 'alert-success' : 'alert-warning'
+  if (tutorState.value.mode === 'resolved') {
+    if (tutorState.value.resolution.kind === 'revealed') {
+      return 'alert-info'
+    }
+
+    return tutorState.value.resolution.result.isCorrect ? 'alert-success' : 'alert-warning'
+  }
+
+  return 'alert-info'
 })
 
 const feedbackIcon = computed(() => {
-  if (!result.value) return Lightbulb
-  return result.value.isCorrect ? CheckCircle2 : CircleAlert
+  if (tutorState.value.mode === 'resolved') {
+    if (tutorState.value.resolution.kind === 'revealed') {
+      return Lightbulb
+    }
+
+    return tutorState.value.resolution.result.isCorrect ? CheckCircle2 : CircleAlert
+  }
+
+  return Lightbulb
+})
+
+const isResolved = computed(() => tutorState.value.mode === 'resolved')
+const isSolutionVisible = computed(() => isResolved.value)
+
+const actionConfig = computed(() => {
+  if (tutorState.value.mode === 'resolved') {
+    return {
+      label: t('tutor.next'),
+      icon: RefreshCw,
+      handler: nextExercise
+    }
+  }
+
+  if (tutorState.value.mode === 'editing' && !tutorState.value.hasInput) {
+    return {
+      label: t('tutor.giveUp'),
+      icon: Lightbulb,
+      handler: revealSolution
+    }
+  }
+
+  return {
+    label: t('tutor.check'),
+    icon: CheckCircle2,
+    handler: checkAnswer
+  }
 })
 
 function checkAnswer() {
@@ -43,49 +106,25 @@ function checkAnswer() {
     })
   }
 
-  result.value = gradeAnswer(exercise.value, answer.value)
+  resolution.value = {
+    kind: 'graded',
+    result: gradeAnswer(exercise.value, answer.value)
+  }
+}
+
+function revealSolution() {
+  resolution.value = { kind: 'revealed' }
 }
 
 function nextExercise() {
   exercise.value = generateExercise(exercise.value.id)
   answer.value = ''
-  result.value = null
-  isTargetVisible.value = false
+  resolution.value = null
 }
 </script>
 
 <template>
-  <section class="flex w-full max-w-2xl flex-col gap-6">
-    <div class="space-y-2">
-      <h1 class="text-3xl font-bold">
-        {{ t('tutor.title') }}
-      </h1>
-      <p class="text-base-content/70">
-        {{ t('tutor.intro') }}
-      </p>
-    </div>
-
-    <div class="flex flex-col gap-3">
-      <div class="flex items-center justify-between gap-3">
-        <span class="font-medium">{{ t('tutor.exerciseLabel') }}</span>
-        <span class="badge badge-outline">
-          {{ t(`tutor.examples.${exercise.kind}`) }}
-        </span>
-      </div>
-      <RenderedMath :expression="exercise.source" />
-    </div>
-
-    <label class="form-control gap-2">
-      <span class="label p-0">
-        <span class="label-text font-medium">{{ t('tutor.answerLabel') }}</span>
-      </span>
-      <MathInput
-        v-model="answer"
-        :label="t('tutor.answerLabel')"
-        :placeholder="t('tutor.answerPlaceholder')"
-      />
-    </label>
-
+  <section class="flex w-full max-w-xl flex-col gap-5">
     <div
       class="alert"
       :class="feedbackClass"
@@ -95,47 +134,38 @@ function nextExercise() {
         :size="22"
         aria-hidden="true"
       />
-      <span>{{ t(feedbackKey) }}</span>
+      <div class="flex min-w-0 flex-1 flex-col gap-3">
+        <span>{{ t(feedbackKey) }}</span>
+        <RenderedMath
+          v-if="isSolutionVisible"
+          :expression="exercise.target"
+        />
+      </div>
     </div>
 
-    <div class="flex flex-wrap gap-3">
+    <div class="flex flex-col gap-3">
+      <RenderedMath :expression="exercise.source" />
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <MathInput
+        v-model="answer"
+        :disabled="isResolved"
+        :label="t('tutor.answerLabel')"
+        :placeholder="t('tutor.answerPlaceholder')"
+      />
       <button
         class="btn btn-primary"
         type="button"
-        @click="checkAnswer"
+        @click="actionConfig.handler"
       >
-        <CheckCircle2
+        <component
+          :is="actionConfig.icon"
           :size="20"
           aria-hidden="true"
         />
-        {{ t('tutor.check') }}
+        {{ actionConfig.label }}
       </button>
-      <button
-        class="btn btn-outline"
-        type="button"
-        @click="nextExercise"
-      >
-        <RefreshCw
-          :size="20"
-          aria-hidden="true"
-        />
-        {{ t('tutor.next') }}
-      </button>
-      <button
-        class="btn btn-ghost"
-        type="button"
-        @click="isTargetVisible = !isTargetVisible"
-      >
-        {{ t(isTargetVisible ? 'tutor.hideTarget' : 'tutor.showTarget') }}
-      </button>
-    </div>
-
-    <div
-      v-if="isTargetVisible"
-      class="flex flex-col gap-3"
-    >
-      <span class="font-medium">{{ t('tutor.targetLabel') }}</span>
-      <RenderedMath :expression="exercise.target" />
     </div>
   </section>
 </template>

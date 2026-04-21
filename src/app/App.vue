@@ -15,8 +15,11 @@ const selectedLocale = computed({
 </script>
 
 <template>
-  <div class="flex min-h-full w-full flex-col bg-base-100 text-base-content">
-    <nav class="navbar border-b border-base-300 bg-base-100">
+  <div
+    data-theme="light"
+    class="flex min-h-screen w-full flex-col bg-base-100 text-base-content"
+  >
+    <nav class="navbar border-b border-base-300 bg-base-100/95 shadow-sm">
       <div class="flex-1">
         <div class="flex items-center gap-2">
           <Calculator
@@ -44,7 +47,7 @@ const selectedLocale = computed({
         </select>
       </label>
     </nav>
-    <main class="flex w-full flex-1 justify-center px-4 py-8">
+    <main class="flex w-full flex-1 justify-center bg-base-200/40 px-4 py-8">
       <RouterView />
     </main>
   </div>
@@ -54,4 +57,15 @@ const selectedLocale = computed({
 <style>
 @import "tailwindcss";
 @plugin "daisyui";
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+  background-color: oklch(98% 0.002 247.839);
+}
 </style>

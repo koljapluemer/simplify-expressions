@@ -15,18 +15,17 @@ const messages = {
       answerLabel: 'Deine Antwort',
       answerPlaceholder: 'Vereinfachten Term eingeben',
       check: 'Prüfen',
+      giveUp: 'Aufgeben & Lösung zeigen',
       next: 'Nächste Aufgabe',
-      showTarget: 'Lösung zeigen',
-      hideTarget: 'Lösung ausblenden',
-      targetLabel: 'Mögliche Lösung',
       feedback: {
-        idle: 'Gib einen vereinfachten Term ein.',
+        idle: 'Vereinfache den Term.',
+        revealed: 'Eine mögliche Lösung:',
         empty: 'Gib zuerst eine Antwort ein.',
         parseError: 'Ich kann diese Eingabe noch nicht lesen.',
         notEquivalent: 'Der Term ist nicht gleichwertig.',
         copied: 'Der Term ist gleichwertig, aber noch nicht vereinfacht.',
         tooComplex: 'Das ist richtig, aber noch nicht einfach genug.',
-        correct: 'Richtig.'
+        correct: 'Richtig. Eine mögliche Lösung:'
       },
       examples: {
         combineLikeTerms: 'Gleichartige Terme zusammenfassen',
@@ -54,18 +53,17 @@ const messages = {
       answerLabel: 'Your answer',
       answerPlaceholder: 'Enter the simplified expression',
       check: 'Check',
+      giveUp: 'Give up & Show Solution',
       next: 'Next exercise',
-      showTarget: 'Show answer',
-      hideTarget: 'Hide answer',
-      targetLabel: 'One possible answer',
       feedback: {
-        idle: 'Enter a simplified expression.',
+        idle: 'Simplify the expression.',
+        revealed: 'One possible answer:',
         empty: 'Enter an answer first.',
         parseError: 'I cannot read that input yet.',
         notEquivalent: 'The expression is not equivalent.',
         copied: 'The expression is equivalent, but not simplified yet.',
         tooComplex: 'That is correct, but not simple enough yet.',
-        correct: 'Correct.'
+        correct: 'Correct. One possible answer:'
       },
       examples: {
         combineLikeTerms: 'Combine like terms',

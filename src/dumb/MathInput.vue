@@ -6,6 +6,7 @@ const props = defineProps<{
   modelValue: string
   label: string
   placeholder: string
+  disabled?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -20,6 +21,7 @@ onMounted(() => {
 
   mathField.value.value = props.modelValue
   mathField.value.smartFence = true
+  mathField.value.readOnly = props.disabled ?? false
   mathField.value.addEventListener('input', handleInput)
 })
 
@@ -28,6 +30,15 @@ watch(
   (value) => {
     if (mathField.value && mathField.value.getValue('ascii-math') !== value) {
       mathField.value.value = value
+    }
+  }
+)
+
+watch(
+  () => props.disabled,
+  (disabled) => {
+    if (mathField.value) {
+      mathField.value.readOnly = disabled ?? false
     }
   }
 )
@@ -44,8 +55,9 @@ function escapeLatexText(value: string): string {
 <template>
   <math-field
     ref="mathField"
-    class="min-h-14 w-full rounded-box border border-base-300 bg-base-100 px-3 py-2 text-xl focus-within:outline focus-within:outline-2 focus-within:outline-primary"
+    class="min-h-14 w-full rounded-box border border-base-300 bg-base-100 px-3 py-2 text-xl focus-within:outline focus-within:outline-2 focus-within:outline-primary aria-disabled:cursor-not-allowed aria-disabled:bg-base-200 aria-disabled:text-base-content/70"
     :aria-label="label"
+    :aria-disabled="disabled"
     :placeholder="mathPlaceholder"
   />
 </template>
