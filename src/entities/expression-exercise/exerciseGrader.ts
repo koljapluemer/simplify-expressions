@@ -45,9 +45,8 @@ function isCopiedOrUnchanged(exercise: ExpressionExercise, answer: string): bool
 }
 
 function isSimpleEnough(exercise: ExpressionExercise, answer: string): boolean {
-  const sourceScore = expressionComplexity(exercise.source)
   const answerScore = expressionComplexity(answer)
   const targetScore = expressionComplexity(exercise.target)
 
-  return answerScore < sourceScore && answerScore <= targetScore + targetTolerance
+  return answerScore <= targetScore + targetTolerance
 }

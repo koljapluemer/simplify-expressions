@@ -17,8 +17,12 @@ const messages = {
       check: 'Prüfen',
       giveUp: 'Aufgeben & Lösung zeigen',
       next: 'Nächste Aufgabe',
+      loadingAction: 'Lädt',
+      loadingLabel: 'Lädt',
+      difficultyBand: 'Stufe {value}',
       feedback: {
         idle: 'Vereinfache den Term.',
+        loading: 'Eine passende Aufgabe wird gewählt.',
         revealed: 'Eine mögliche Lösung:',
         empty: 'Gib zuerst eine Antwort ein.',
         parseError: 'Ich kann diese Eingabe noch nicht lesen.',
@@ -27,12 +31,15 @@ const messages = {
         tooComplex: 'Das ist richtig, aber noch nicht einfach genug.',
         correct: 'Richtig. Eine mögliche Lösung:'
       },
-      examples: {
-        combineLikeTerms: 'Gleichartige Terme zusammenfassen',
-        removeParentheses: 'Klammern auflösen',
-        distributeNumber: 'Ausmultiplizieren',
-        expandProduct: 'Produkte ausmultiplizieren',
-        powerProduct: 'Potenzen in Produkten kürzen'
+      topics: {
+        'combine-like-terms': 'Gleichartige Terme',
+        'normalize-product-powers': 'Potenzen in Produkten',
+        'remove-parentheses-with-sign': 'Klammern mit Vorzeichen',
+        'distribute-monomial-over-sum': 'Monom ausmultiplizieren',
+        'expand-monomial-times-parenthesized-product': 'Produkt mit Klammer ausmultiplizieren',
+        'expand-binomial-times-binomial': 'Binome ausmultiplizieren',
+        'signed-product-with-follow-up-combine': 'Vorzeichen und Produkt',
+        'challenge-mixed-expressions': 'Mischaufgabe'
       }
     },
     locale: {
@@ -55,8 +62,12 @@ const messages = {
       check: 'Check',
       giveUp: 'Give up & Show Solution',
       next: 'Next exercise',
+      loadingAction: 'Loading',
+      loadingLabel: 'Loading',
+      difficultyBand: 'Band {value}',
       feedback: {
         idle: 'Simplify the expression.',
+        loading: 'Choosing the next exercise.',
         revealed: 'One possible answer:',
         empty: 'Enter an answer first.',
         parseError: 'I cannot read that input yet.',
@@ -65,12 +76,15 @@ const messages = {
         tooComplex: 'That is correct, but not simple enough yet.',
         correct: 'Correct. One possible answer:'
       },
-      examples: {
-        combineLikeTerms: 'Combine like terms',
-        removeParentheses: 'Remove parentheses',
-        distributeNumber: 'Distribute numbers',
-        expandProduct: 'Expand products',
-        powerProduct: 'Simplify powers in products'
+      topics: {
+        'combine-like-terms': 'Combine like terms',
+        'normalize-product-powers': 'Normalize product powers',
+        'remove-parentheses-with-sign': 'Remove parentheses with sign',
+        'distribute-monomial-over-sum': 'Distribute a monomial',
+        'expand-monomial-times-parenthesized-product': 'Expand a monomial product',
+        'expand-binomial-times-binomial': 'Expand binomials',
+        'signed-product-with-follow-up-combine': 'Signed product and combine',
+        'challenge-mixed-expressions': 'Challenge'
       }
     },
     locale: {

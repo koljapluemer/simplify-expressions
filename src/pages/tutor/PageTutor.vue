@@ -1,25 +1,32 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { CheckCircle2, CircleAlert, Lightbulb, RefreshCw } from 'lucide-vue-next'
 import { useI18n } from 'vue-i18n'
 import MathInput from '@/dumb/MathInput.vue'
 import RenderedMath from '@/dumb/RenderedMath.vue'
-import { generateExercise } from '@/entities/expression-exercise/exerciseGenerator'
 import { gradeAnswer } from '@/entities/expression-exercise/exerciseGrader'
+import { getNextExercise, recordExerciseAttempt } from '@/entities/expression-exercise/exerciseScheduler'
 import { normalizeExpression } from '@/entities/expression-exercise/mathEngine'
-import type { GradeResult } from '@/entities/expression-exercise/exerciseTypes'
+import type { ExpressionExercise, GradeResult } from '@/entities/expression-exercise/exerciseTypes'
 
 const { t } = useI18n()
 
-const exercise = ref(generateExercise())
+const exercise = ref<ExpressionExercise | null>(null)
 const answer = ref('')
+const isLoading = ref(true)
 const resolution = ref<{ kind: 'revealed' } | { kind: 'graded'; result: GradeResult } | null>(null)
+const shownAt = ref(Date.now())
 
 type TutorState =
+  | { mode: 'loading' }
   | { mode: 'editing'; hasInput: boolean }
   | { mode: 'resolved'; resolution: NonNullable<typeof resolution.value> }
 
 const tutorState = computed<TutorState>(() => {
+  if (isLoading.value || !exercise.value) {
+    return { mode: 'loading' }
+  }
+
   if (resolution.value) {
     return { mode: 'resolved', resolution: resolution.value }
   }
@@ -32,6 +39,10 @@ const tutorState = computed<TutorState>(() => {
 })
 
 const feedbackKey = computed(() => {
+  if (tutorState.value.mode === 'loading') {
+    return 'tutor.feedback.loading'
+  }
+
   if (tutorState.value.mode === 'resolved') {
     if (tutorState.value.resolution.kind === 'revealed') {
       return 'tutor.feedback.revealed'
@@ -64,18 +75,29 @@ const feedbackIcon = computed(() => {
     return tutorState.value.resolution.result.isCorrect ? CheckCircle2 : CircleAlert
   }
 
+  if (tutorState.value.mode === 'loading') {
+    return RefreshCw
+  }
+
   return Lightbulb
 })
 
 const isResolved = computed(() => tutorState.value.mode === 'resolved')
-const isSolutionVisible = computed(() => isResolved.value)
-
+const isSolutionVisible = computed(() => isResolved.value && exercise.value !== null)
 const actionConfig = computed(() => {
+  if (tutorState.value.mode === 'loading') {
+    return {
+      label: t('tutor.loadingAction'),
+      icon: RefreshCw,
+      handler: loadExercise
+    }
+  }
+
   if (tutorState.value.mode === 'resolved') {
     return {
       label: t('tutor.next'),
       icon: RefreshCw,
-      handler: nextExercise
+      handler: loadExercise
     }
   }
 
@@ -94,7 +116,22 @@ const actionConfig = computed(() => {
   }
 })
 
-function checkAnswer() {
+onMounted(async () => {
+  await loadExercise()
+})
+
+async function loadExercise() {
+  isLoading.value = true
+  exercise.value = await getNextExercise()
+  answer.value = ''
+  resolution.value = null
+  shownAt.value = Date.now()
+  isLoading.value = false
+}
+
+async function checkAnswer() {
+  if (!exercise.value) return
+
   if (import.meta.env.DEV) {
     console.log('grading expression answer', {
       rawAnswer: answer.value,
@@ -106,20 +143,33 @@ function checkAnswer() {
     })
   }
 
+  const result = gradeAnswer(exercise.value, answer.value)
   resolution.value = {
     kind: 'graded',
-    result: gradeAnswer(exercise.value, answer.value)
+    result
   }
+
+  await recordExerciseAttempt({
+    exercise: exercise.value,
+    answer: answer.value,
+    resultReason: result.reason,
+    isCorrect: result.isCorrect,
+    latencyMs: Date.now() - shownAt.value
+  })
 }
 
-function revealSolution() {
+async function revealSolution() {
+  if (!exercise.value) return
+
   resolution.value = { kind: 'revealed' }
-}
 
-function nextExercise() {
-  exercise.value = generateExercise(exercise.value.id)
-  answer.value = ''
-  resolution.value = null
+  await recordExerciseAttempt({
+    exercise: exercise.value,
+    answer: '',
+    resultReason: 'revealed',
+    isCorrect: false,
+    latencyMs: Date.now() - shownAt.value
+  })
 }
 </script>
 
@@ -132,36 +182,42 @@ function nextExercise() {
       <component
         :is="feedbackIcon"
         :size="22"
+        :class="{ 'animate-spin': tutorState.mode === 'loading' }"
         aria-hidden="true"
       />
       <div class="flex min-w-0 flex-1 flex-col gap-3">
         <span>{{ t(feedbackKey) }}</span>
         <RenderedMath
-          v-if="isSolutionVisible"
+          v-if="isSolutionVisible && exercise"
           :expression="exercise.target"
         />
       </div>
     </div>
 
-    <div class="flex flex-col gap-3">
+    <div
+      v-if="exercise"
+      class="flex flex-col gap-3"
+    >
       <RenderedMath :expression="exercise.source" />
     </div>
 
     <div class="flex flex-col gap-3">
       <MathInput
         v-model="answer"
-        :disabled="isResolved"
+        :disabled="isResolved || tutorState.mode === 'loading'"
         :label="t('tutor.answerLabel')"
         :placeholder="t('tutor.answerPlaceholder')"
       />
       <button
         class="btn btn-primary"
         type="button"
+        :disabled="isLoading"
         @click="actionConfig.handler"
       >
         <component
           :is="actionConfig.icon"
           :size="20"
+          :class="{ 'animate-spin': tutorState.mode === 'loading' }"
           aria-hidden="true"
         />
         {{ actionConfig.label }}

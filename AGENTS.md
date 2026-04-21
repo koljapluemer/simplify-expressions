@@ -1,3 +1,5 @@
+ONLY IMPLEMENT FEATURES THAT ARE ASKED FOR. Do not add random garbage, especially the random UI widgets you love adding.
+
 ## Essential Tech Stack
 
 - tailwind + Daisy UI. Actually use daisy components. Avoid manual CSS when possible.
