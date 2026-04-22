@@ -6,7 +6,23 @@ const messages = {
     app: {
       title: 'Termtrainer',
       practice: 'Üben',
-      language: 'Sprache'
+      language: 'Sprache',
+      feedback: 'Feedback',
+      footerNote: 'Es werden pseudonyme Lerndaten gespeichert. Für die App werden funktionale Cookies verwendet.'
+    },
+    feedbackForm: {
+      title: 'Feedback',
+      intro: 'Was hilft dir, was fehlt noch?',
+      helpfulForLearningLabel: 'Wie hilfreich ist die App fürs Lernen?',
+      improveUsefulnessLabel: 'Was sollte verbessert werden, damit die App nützlicher ist?',
+      anythingElseLabel: 'Noch etwas?',
+      websiteLabel: 'Website',
+      submit: 'Senden',
+      sending: 'Sendet',
+      cancel: 'Abbrechen',
+      close: 'Schließen',
+      closeSymbol: '×',
+      error: 'Feedback konnte nicht gesendet werden.'
     },
     tutor: {
       title: 'Terme vereinfachen',
@@ -70,7 +86,23 @@ const messages = {
     app: {
       title: 'Expression Tutor',
       practice: 'Practice',
-      language: 'Language'
+      language: 'Language',
+      feedback: 'Feedback',
+      footerNote: 'Pseudonymous learning data is stored. Functional cookies are used for the app.'
+    },
+    feedbackForm: {
+      title: 'Feedback',
+      intro: 'What helps you learn, and what is missing?',
+      helpfulForLearningLabel: 'How helpful is the app for learning?',
+      improveUsefulnessLabel: 'What could be improved to make the app more useful?',
+      anythingElseLabel: 'Anything else?',
+      websiteLabel: 'Website',
+      submit: 'Send',
+      sending: 'Sending',
+      cancel: 'Cancel',
+      close: 'Close',
+      closeSymbol: '×',
+      error: 'Could not send feedback.'
     },
     tutor: {
       title: 'Simplify expressions',

@@ -1,17 +1,27 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { Calculator } from 'lucide-vue-next'
 import { RouterView } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import AppFeedbackModal from './feedback/AppFeedbackModal.vue'
 import { setAppLocale } from './i18n'
 import type { AppLocale } from './storage/selectedLocale'
 
 const { t, locale } = useI18n()
+const isFeedbackModalOpen = ref(false)
 
 const selectedLocale = computed({
   get: () => locale.value as AppLocale,
   set: (value: AppLocale) => setAppLocale(value)
 })
+
+function openFeedbackModal() {
+  isFeedbackModalOpen.value = true
+}
+
+function closeFeedbackModal() {
+  isFeedbackModalOpen.value = false
+}
 </script>
 
 <template>
@@ -50,6 +60,24 @@ const selectedLocale = computed({
     <main class="flex w-full flex-1 justify-center bg-base-200/40 px-4 py-8">
       <RouterView />
     </main>
+    <footer class="border-t border-base-300 bg-base-100 px-4 py-4">
+      <div class="mx-auto flex w-full max-w-5xl flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p class="text-sm text-base-content/70">
+          {{ t('app.footerNote') }}
+        </p>
+        <button
+          class="btn btn-ghost btn-sm self-start sm:self-auto"
+          type="button"
+          @click="openFeedbackModal"
+        >
+          {{ t('app.feedback') }}
+        </button>
+      </div>
+    </footer>
+    <AppFeedbackModal
+      :is-open="isFeedbackModalOpen"
+      @close="closeFeedbackModal"
+    />
   </div>
 </template>
 
