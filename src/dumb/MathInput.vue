@@ -79,7 +79,7 @@ onMounted(() => {
 
   mathField.value.value = props.modelValue
   mathField.value.smartFence = true
-  mathField.value.mathVirtualKeyboardPolicy = 'manual'
+  mathField.value.mathVirtualKeyboardPolicy = 'auto'
   mathField.value.readOnly = props.disabled ?? false
   mathField.value.addEventListener('input', handleInput)
   mathField.value.addEventListener('keydown', handleKeydown)
