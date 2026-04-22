@@ -12,7 +12,7 @@ import router from './router'
 const mathVirtualKeyboard = window.mathVirtualKeyboard as VirtualKeyboardInterface | undefined
 
 if (mathVirtualKeyboard) {
-  mathVirtualKeyboard.layouts = ['minimalist']
+  mathVirtualKeyboard.layouts = ['compact']
   mathVirtualKeyboard.editToolbar = 'none'
 }
 

@@ -213,6 +213,7 @@ async function revealSolution() {
     <div class="flex flex-col gap-3">
       <MathInput
         v-model="answer"
+        :autofocus="true"
         :disabled="isResolved || tutorState.mode === 'loading'"
         :label="t('tutor.answerLabel')"
         :placeholder="t('tutor.answerPlaceholder')"
