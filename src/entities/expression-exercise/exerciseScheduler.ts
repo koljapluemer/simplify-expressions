@@ -75,6 +75,7 @@ export async function recordExerciseAttempt(input: {
   const attempt = createExerciseAttempt(input)
 
   await saveAttemptAndProgress(attempt, nextProgress)
+  return attempt
 }
 
 export function createDefaultTopicProgress(topic: ExerciseTopic): TopicProgress {

@@ -7,6 +7,7 @@ import RenderedMath from '@/dumb/RenderedMath.vue'
 import { gradeAnswer } from '@/entities/expression-exercise/exerciseGrader'
 import { getNextExercise, recordExerciseAttempt } from '@/entities/expression-exercise/exerciseScheduler'
 import { normalizeExpression } from '@/entities/expression-exercise/mathEngine'
+import { logExerciseAttempt } from './logExerciseAttempt'
 import type { ExpressionExercise, GradeResult } from '@/entities/expression-exercise/exerciseTypes'
 
 const { t } = useI18n()
@@ -149,12 +150,16 @@ async function checkAnswer() {
     result
   }
 
-  await recordExerciseAttempt({
+  const attempt = await recordExerciseAttempt({
     exercise: exercise.value,
     answer: answer.value,
     resultReason: result.reason,
     isCorrect: result.isCorrect,
     latencyMs: Date.now() - shownAt.value
+  })
+
+  void logExerciseAttempt(attempt).catch((error) => {
+    console.error('failed to log exercise attempt', error)
   })
 }
 
@@ -163,12 +168,16 @@ async function revealSolution() {
 
   resolution.value = { kind: 'revealed' }
 
-  await recordExerciseAttempt({
+  const attempt = await recordExerciseAttempt({
     exercise: exercise.value,
     answer: '',
     resultReason: 'revealed',
     isCorrect: false,
     latencyMs: Date.now() - shownAt.value
+  })
+
+  void logExerciseAttempt(attempt).catch((error) => {
+    console.error('failed to log exercise attempt', error)
   })
 }
 </script>
