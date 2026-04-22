@@ -8,7 +8,7 @@ const messages = {
       practice: 'Üben',
       language: 'Sprache',
       feedback: 'Feedback',
-      footerNote: 'Es werden pseudonyme Lerndaten gespeichert. Für die App werden funktionale Cookies verwendet.'
+      footerNote: 'Von Kolja Sam (koljasam.com). Es werden pseudonyme Lerndaten gespeichert. Für die App werden funktionale Cookies verwendet.'
     },
     feedbackForm: {
       title: 'Feedback',
@@ -88,7 +88,7 @@ const messages = {
       practice: 'Practice',
       language: 'Language',
       feedback: 'Feedback',
-      footerNote: 'Pseudonymous learning data is stored. Functional cookies are used for the app.'
+      footerNote: 'Made by Kolja Sam (koljasam.com). Pseudonymous learning data is stored. Functional cookies are used for the app.'
     },
     feedbackForm: {
       title: 'Feedback',
