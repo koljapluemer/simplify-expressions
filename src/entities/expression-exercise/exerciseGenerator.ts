@@ -1,5 +1,6 @@
 import { shuffleArray } from '@/dumb/random'
 import { isValidExercise } from './exerciseValidation'
+import { commonExerciseVariables } from './exerciseVariables'
 import type {
   DifficultyBand,
   ExerciseFeature,
@@ -15,7 +16,7 @@ type ExerciseDraft = Omit<ExpressionExercise, 'difficultyScore' | 'id' | 'seed'>
 
 type TopicGenerator = (difficultyBand: DifficultyBand, randomSource: RandomSource) => ExerciseDraft
 
-const baseVariables = ['a', 'b', 'c', 'd', 'm', 'n', 'x', 'y', 'z'] as const
+const baseVariables = commonExerciseVariables
 
 const topicGenerators: Record<ExerciseTopic, TopicGenerator> = {
   'combine-like-terms': generateCombineLikeTermsExercise,
